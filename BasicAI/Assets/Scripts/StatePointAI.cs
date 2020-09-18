@@ -14,14 +14,14 @@ public class StatePointAI : MonoBehaviour
     public float attackPlayerDistance = 5f;
     public float fleePlayerDistance = 5f;
     #endregion
-    public enum AIBehaviour//I added states for our ai
+    public enum AIBehaviour//Added states for the AI
     {
         patrol,
         chase,
         attack,
         flee,
     }
-    public AIBehaviour state;//I added states for our ai
+    public AIBehaviour state;
     private void Start()
     {
         playerController = player.GetComponent<PlayerController>();
@@ -110,7 +110,7 @@ public class StatePointAI : MonoBehaviour
     {
         //work out the name of the method we want to run
         string methodName = state.ToString() + "State"; //if our current state is "walk" then this returns "walkState"
-        //give us a variable so we an run a method using its name
+        //give a variable so we run a method using its name
         System.Reflection.MethodInfo info =
             GetType().GetMethod(methodName,
                                 System.Reflection.BindingFlags.NonPublic |
@@ -118,8 +118,8 @@ public class StatePointAI : MonoBehaviour
         //Run our method
         StartCoroutine((IEnumerator)info.Invoke(this, null));
         //Using StartCoroutine() means we can leave and come back to the method that is running
-        //All Coroutines must return IEnumerator
-    }   //from StateMachine
+        //All Coroutines must return IEnumerator from StateMachine
+    }
 }
 
 
