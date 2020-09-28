@@ -1,9 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Player
 {
+    [AddComponentMenu("AI/Player Controller")]
+
     [RequireComponent(typeof(Rigidbody2D))]
     public class PlayerController : MonoBehaviour
     {
@@ -11,6 +14,7 @@ namespace Player
         [Header("General Stats")]
         public float speed;
         public float attackStrength;
+        public Slider attackSlider;
 
         [Header("Health Stats")]
         public float health = 100f;
@@ -19,6 +23,7 @@ namespace Player
         private Rigidbody2D _playerRigidbody;
         private float _moveHorizontal;
         private float _moveVertical;
+        
         #endregion
 
         void Start()
@@ -29,6 +34,8 @@ namespace Player
         {
             if (health <= 0)
             {
+                Destroy(gameObject);
+                attackSlider.enabled = false;
                 Debug.Log("PLAYER DIED");
             }
         }
@@ -40,6 +47,14 @@ namespace Player
             Vector2 movement = new Vector2(_moveHorizontal, _moveVertical);
             _playerRigidbody.AddForce(movement * speed);
         }
+
+        //Function to allow Slider to change the player's attack strength against the AI
+        public void ChangePlayerAtk()
+        {
+
+            attackStrength = attackSlider.value;
+        }
+
     }
 }
 

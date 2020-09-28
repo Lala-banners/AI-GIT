@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace AI
 {
+    [AddComponentMenu("AI/State Point AI")]
+
     public class StatePointAI : MonoBehaviour
     {
         #region VARIABLES
@@ -33,6 +35,7 @@ namespace AI
         }
         public AIBehaviour state;//States for AI
         #endregion
+
         private void Start()
         {
             playerController = player.GetComponent<Player.PlayerController>();
@@ -47,11 +50,17 @@ namespace AI
                 HealthCheck();
                 Patrol();
                 yield return null;
-                //If the distance between the player and AI is less than 5(chase player range) then AI chase player
-                if (Vector2.Distance(player.transform.position, transform.position) < chasePlayerDistance)
+                if (player != null)
                 {
-                    state = AIBehaviour.chase;
+                    //If the distance between the player and AI is less than 5(chase player range) then AI chase player
+                    if (Vector2.Distance(player.transform.position, transform.position) < chasePlayerDistance)
+                    {
+                        state = AIBehaviour.chase;
+
+                    }
                 }
+                
+               
             }
             
             NextState();
@@ -75,6 +84,7 @@ namespace AI
                     //Change state to attack state and damage player
                     state = AIBehaviour.attack;
                 }
+
             }
             
             NextState();
@@ -90,12 +100,30 @@ namespace AI
                 health -= playerController.attackStrength; //damages enemy
                 MoveAI(player.transform.position);
                 yield return new WaitForSeconds(1f);
-                //If the distance between the player and AI is less than 5(attack player range) then AI chases player
-                if (Vector2.Distance(player.transform.position, transform.position) < attackPlayerDistance)
+                //If there is no player, AI patrols
+                if (player == null)
                 {
-                    //Change state to chase state 
-                    state = AIBehaviour.chase;
+                    state = AIBehaviour.patrol;
+                    Debug.Log("Did it work?");
                 }
+                //If there is no player, then none of these get checked
+                else
+                {
+                    //If the distance between the player and AI is less than 5(attack player range) then AI chases player
+                    if (Vector2.Distance(player.transform.position, transform.position) < attackPlayerDistance)
+                    {
+                        //Change state to chase state 
+                        state = AIBehaviour.chase;
+                    }
+                    //Else if distance between AI and player is greater than attack player range then AI patrols
+                    else if (Vector2.Distance(player.transform.position, transform.position) > attackPlayerDistance)
+                    {
+                        //Change attack state to chase
+                        state = AIBehaviour.chase;
+                    }
+                }
+                
+                //Used for testing - Debug.Log("Within attacking distance");
             }
            
             //Call next state
@@ -146,9 +174,9 @@ namespace AI
         //Function for calling the next state
         private void NextState()
         {
-            //work out the name of the method we want to run
-            string methodName = state.ToString() + "State"; //if our current state is "walk" then this returns "walkState"
-                                                            //give us a variable so we an run a method using its name
+            //Work out the name of the method to run
+            string methodName = state.ToString() + "State"; //If current state is "walk" then this returns "walkState"
+                                                            //gives a variable so run a method using its name
             System.Reflection.MethodInfo info =
                 GetType().GetMethod(methodName,
                                     System.Reflection.BindingFlags.NonPublic |
@@ -166,6 +194,7 @@ namespace AI
             if (health <= 0)
             {
                 Destroy(gameObject);
+                return;
             }
 
         }
